@@ -80,6 +80,9 @@ namespace QSsl {
         AnyProtocol,
         TlsV1SslV3,
         SecureProtocols,
+        // Backported extensions for newer TLS versions.
+        TlsV1_1,
+        TlsV1_2,
         UnknownProtocol = -1
     };
 

@@ -208,6 +208,10 @@ QSslCipher QSslSocketBackendPrivate::QSslCipher_from_SSL_CIPHER(SSL_CIPHER *ciph
             ciph.d->protocol = QSsl::SslV2;
         else if (protoString == QLatin1String("TLSv1"))
             ciph.d->protocol = QSsl::TlsV1;
+        else if (protoString == QLatin1String("TLSv1.1"))
+            ciph.d->protocol = QSsl::TlsV1_1;
+        else if (protoString == QLatin1String("TLSv1.2"))
+            ciph.d->protocol = QSsl::TlsV1_2;
 
         if (descriptionList.at(2).startsWith(QLatin1String("Kx=")))
             ciph.d->keyExchangeMethod = descriptionList.at(2).mid(3);
@@ -248,7 +252,7 @@ bool QSslSocketBackendPrivate::initSslContext()
 {
     Q_Q(QSslSocket);
 
-    // Create and initialize SSL context. Accept SSLv2, SSLv3 and TLSv1.
+    // Create and initialize SSL context. Accept SSLv2, SSLv3 and TLSv1+.
     bool client = (mode == QSslSocket::SslClientMode);
 
     bool reinitialized = false;
@@ -273,6 +277,10 @@ init_context:
     case QSsl::TlsV1:
         ctx = q_SSL_CTX_new(client ? q_TLSv1_client_method() : q_TLSv1_server_method());
         break;
+    case QSsl::TlsV1_1:
+    case QSsl::TlsV1_2:
+        ctx = q_SSL_CTX_new(client ? q_SSLv23_client_method() : q_SSLv23_server_method());
+        break;
     }
     if (!ctx) {
         // After stopping Flash 10 the SSL library looses its ciphers. Try re-adding them
@@ -291,11 +299,20 @@ init_context:
     }
 
     // Enable bug workarounds.
-    long options;
+    long options = SSL_OP_ALL;
     if (configuration.protocol == QSsl::TlsV1SslV3 || configuration.protocol == QSsl::SecureProtocols)
-        options = SSL_OP_ALL|SSL_OP_NO_SSLv2;
-    else
-        options = SSL_OP_ALL;
+        options |= SSL_OP_NO_SSLv2;
+
+    switch (configuration.protocol) {
+    case QSsl::TlsV1_1:
+        options |= SSL_OP_NO_SSLv2 | SSL_OP_NO_SSLv3 | SSL_OP_NO_TLSv1;
+        break;
+    case QSsl::TlsV1_2:
+        options |= SSL_OP_NO_SSLv2 | SSL_OP_NO_SSLv3 | SSL_OP_NO_TLSv1 | SSL_OP_NO_TLSv1_1;
+        break;
+    default:
+        break;
+    }
 
     // This option is disabled by default, so we need to be able to clear it
     if (configuration.sslOptions & QSsl::SslOptionDisableEmptyFragments)
@@ -440,6 +457,8 @@ init_context:
 #if OPENSSL_VERSION_NUMBER >= 0x0090806fL && !defined(OPENSSL_NO_TLSEXT)
     if ((configuration.protocol == QSsl::TlsV1SslV3 ||
         configuration.protocol == QSsl::TlsV1 ||
+        configuration.protocol == QSsl::TlsV1_1 ||
+        configuration.protocol == QSsl::TlsV1_2 ||
         configuration.protocol == QSsl::SecureProtocols ||
         configuration.protocol == QSsl::AnyProtocol) &&
         client && q_SSLeay() >= 0x00090806fL) {

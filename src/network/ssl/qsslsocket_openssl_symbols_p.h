@@ -330,19 +330,27 @@ const SSL_METHOD *q_SSLv2_client_method();
 const SSL_METHOD *q_SSLv3_client_method();
 const SSL_METHOD *q_SSLv23_client_method();
 const SSL_METHOD *q_TLSv1_client_method();
+const SSL_METHOD *q_TLSv1_1_client_method();
+const SSL_METHOD *q_TLSv1_2_client_method();
 const SSL_METHOD *q_SSLv2_server_method();
 const SSL_METHOD *q_SSLv3_server_method();
 const SSL_METHOD *q_SSLv23_server_method();
 const SSL_METHOD *q_TLSv1_server_method();
+const SSL_METHOD *q_TLSv1_1_server_method();
+const SSL_METHOD *q_TLSv1_2_server_method();
 #else
 SSL_METHOD *q_SSLv2_client_method();
 SSL_METHOD *q_SSLv3_client_method();
 SSL_METHOD *q_SSLv23_client_method();
 SSL_METHOD *q_TLSv1_client_method();
+SSL_METHOD *q_TLSv1_1_client_method();
+SSL_METHOD *q_TLSv1_2_client_method();
 SSL_METHOD *q_SSLv2_server_method();
 SSL_METHOD *q_SSLv3_server_method();
 SSL_METHOD *q_SSLv23_server_method();
 SSL_METHOD *q_TLSv1_server_method();
+SSL_METHOD *q_TLSv1_1_server_method();
+SSL_METHOD *q_TLSv1_2_server_method();
 #endif
 int q_SSL_write(SSL *a, const void *b, int c);
 int q_X509_cmp(X509 *a, X509 *b);
@@ -396,6 +404,12 @@ DSA *q_d2i_DSAPrivateKey(DSA **a, unsigned char **pp, long length);
 			bp,(char *)x,enc,kstr,klen,cb,u)
 #endif
 #define q_SSL_CTX_set_options(ctx,op) q_SSL_CTX_ctrl((ctx),SSL_CTRL_OPTIONS,(op),NULL)
+#ifndef SSL_OP_NO_TLSv1_1
+# define SSL_OP_NO_TLSv1_1 0x10000000L
+#endif
+#ifndef SSL_OP_NO_TLSv1_2
+# define SSL_OP_NO_TLSv1_2 0x08000000L
+#endif
 #define q_SKM_sk_num(type, st) ((int (*)(const STACK_OF(type) *))q_sk_num)(st)
 #define q_SKM_sk_value(type, st,i) ((type * (*)(const STACK_OF(type) *, int))q_sk_value)(st, i)
 #define q_sk_GENERAL_NAME_num(st) q_SKM_sk_num(GENERAL_NAME, (st))
