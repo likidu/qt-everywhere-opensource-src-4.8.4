@@ -39,16 +39,45 @@
 
 ### Prerequisite
 
+(Optional) Set the `OPENSSL_INCDIR` and `OPENSSL_LIBDIR`
+
+```ps
+$env:OPENSSL_INCDIR = "C:\Users\liya\Repos\openssl-1.0.2u-symbian\outinc"
+$env:OPENSSL_LIBDIR = "C:\Users\liya\Repos\openssl-1.0.2u-symbian\out"
+```
+
 From repo root:
+
+### Option A — dynamic OpenSSL (recommended with your DLLs)
+
+- This uses Qt's runtime resolver (no link to import libs needed).
+- Build Qt normally after the patch:
 
 ```ps
 ./configure.exe -platform win32-g++ -opensource -confirm-license -nomake demos -nomake examples -no-webkit -openssl -I C:\Users\liya\Repos\openssl-1.0.2u-symbian\outinc
 ```
 
-Optional include/lib paths for OpenSSL (or use `OPENSSL_INCDIR` / `OPENSSL_LIBDIR`):
+Or use environment variables:
 
 ```ps
-./configure.exe -platform win32-g++ -opensource -confirm-license -nomake demos -nomake examples -no-webkit -openssl -I C:\Users\liya\Repos\openssl-1.0.2u-symbian\outinc -L C:\Users\liya\Repos\openssl-1.0.2u-symbian\out
+./configure.exe -platform win32-g++ -opensource -confirm-license -nomake demos -nomake examples -no-webkit -openssl -I %OPENSSL_INCDIR%
+```
+
+
+### Option B — link against OpenSSL
+
+- Requires import libs in your OpenSSL folder (e.g., `libssl.dll.a`, `libcrypto.dll.a`).
+- If your import libs are `libssleay32.a` and `libeay32.a`, set `OPENSSL_LIBS=-lssleay32 -leay32`.
+  If they are `libssl.dll.a` and `libcrypto.dll.a`, use `OPENSSL_LIBS=-lssl -lcrypto`.
+
+```ps
+./configure.exe -platform win32-g++ -opensource -confirm-license -nomake demos -nomake examples -no-webkit -openssl-linked -I C:\Users\liya\Repos\openssl-1.0.2u-symbian\outinc -L C:\Users\liya\Repos\openssl-1.0.2u-symbian\out
+```
+
+Or use environment variables:
+
+```ps
+./configure.exe -platform win32-g++ -opensource -confirm-license -nomake demos -nomake examples -no-webkit -openssl-linked -I %OPENSSL_INCDIR% -L %OPENSSL_LIBDIR%
 ```
 
 Then build the essential libs:
@@ -67,27 +96,14 @@ If you are building only QtNetwork, build corelib first:
 mingw32-make -C src/corelib -j8
 ```
 
-### Option A — dynamic OpenSSL (recommended with your DLLs)
-
-- This uses Qt's runtime resolver (no link to import libs needed).
-- Build Qt normally after the patch:
+Now build QtNetwork:
 
 ```ps
 mingw32-make -C src/network -j8
 ```
 
-- At runtime, ensure `ssleay32.dll` and `libeay32.dll` from your 1.0.2u build are
-  on PATH or next to your application executable.
-
-### Option B — link against OpenSSL
-
-- Requires import libs in your OpenSSL folder (e.g., `libssl.dll.a`, `libcrypto.dll.a`).
-- If your import libs are `libssleay32.a` and `libeay32.a`, set `OPENSSL_LIBS=-lssleay32 -leay32`.
-  If they are `libssl.dll.a` and `libcrypto.dll.a`, use `OPENSSL_LIBS=-lssl -lcrypto`.
-- Configure Qt to link:
-  - Example: `./configure.exe -platform win32-g++ -opensource -confirm-license -nomake demos -nomake examples -no-webkit -openssl-linked -I C:\Users\liya\Repos\openssl-1.0.2u-symbian\outinc -L C:\Users\liya\Repos\openssl-1.0.2u-symbian\out`
-  - Then `mingw32-make`
-- Deploy the matching DLLs with your application.
+- **(Option A)** At runtime, ensure `ssleay32.dll` and `libeay32.dll` from your 1.0.2u build are
+- **(Option B)** Deploy the matching DLLs with your application.
 
 ## Usage
 
