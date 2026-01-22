@@ -39,7 +39,13 @@
 
 ### Prerequisite
 
-(Optional) Set the `OPENSSL_INCDIR` and `OPENSSL_LIBDIR`
+Set MinGW in PATH:
+
+```ps
+$env:PATH = "C:\Symbian\QtSDK\mingw\bin;" + $env:PATH
+```
+
+(Optional) Set the `OPENSSL_INCDIR` and `OPENSSL_LIBDIR`:
 
 ```ps
 $env:OPENSSL_INCDIR = "C:\Users\liya\Repos\openssl-1.0.2u-symbian\outinc"
@@ -104,6 +110,20 @@ mingw32-make -C src/network -j8
 
 - **(Option A)** At runtime, ensure `ssleay32.dll` and `libeay32.dll` from your 1.0.2u build are
 - **(Option B)** Deploy the matching DLLs with your application.
+
+### Cleanup
+
+To reconfigure, run:
+
+```ps
+mingw32-make confclean
+```
+
+To clean everything, run:
+
+```ps
+mingw32-make clean
+```
 
 ## Usage
 
