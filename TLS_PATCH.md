@@ -111,6 +111,24 @@ mingw32-make -C src/network -j8
 - **(Option A)** At runtime, ensure `ssleay32.dll` and `libeay32.dll` from your 1.0.2u build are
 - **(Option B)** Deploy the matching DLLs with your application.
 
+To build other libraries, run:
+
+Build uic and rcc tools:
+
+- `mingw32-make -C src\tools\uic -j8`
+- `mingw32-make -C src\tools\rcc -j8`
+- Optional (compat, sometimes used): `mingw32-make -C src\tools\uic3 -j8`
+Build core dependencies and modules:
+
+- `mingw32-make -C src\gui -j8`
+- `mingw32-make -C src\script -j8`
+- `mingw32-make -C src\svg -j8`
+- `mingw32-make -C src\sql -j8`
+- `mingw32-make -C src\xmlpatterns -j8`
+- `mingw32-make -C src\declarative -j8` (Requires `script`, `svg`, `sql` and `xmlpatterns`)
+
+Last copied those built `Qt***4.dll` and `Qt***4d.dll` from `lib\` to the QtSDK simulator folder `C:\Symbian\QtSDK\Simulator\Qt\mingw\bin`.
+
 ### Cleanup
 
 To reconfigure, run:
